@@ -1,24 +1,25 @@
 import boto3
 
-# indicate AWS region in the second parenthesis
-glue_client = boto3.client('glue', 'eu-west-1')
+client = boto3.client('glue', region_name='eu-west-1')
 
 # paginate to get list of all jobs
-paginator = glue_client.get_paginator(operation_name="get_jobs")
-response_iterator = paginator.paginate()
+paginator = client.get_paginator(operation_name='get_jobs')
 
 # create empty lists
 df1=[] 
 df2=[] 
 
-for page in response_iterator:
+for page in paginator.paginate():
   jobs = page['Jobs']
  
-  # specify variables of interest here
-  for key in jobs:  
-      df1.append(key['Name']) 
-      df2.append(key['GlueVersion']) 
 
+for key in jobs:
+   try:
+     df1.append(key['Name']) 
+     df2.append(key['GlueVersion']) 
+   except KeyError:
+     df2.append(0)
+      
 res = list(zip(df1,df2)) 
  
 for row in res: 
